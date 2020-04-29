@@ -19,6 +19,8 @@ public interface utils {
     Observable<newsresponse> indiannewsresponse();
     @GET("data.json")
     Observable<india_Data> allindiadata();
+    @GET("states_daily.json")
+    Observable<dailyrjstatus> rajasthandata();
 
 
 }

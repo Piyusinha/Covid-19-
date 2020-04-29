@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 
+import com.personal.covid_19.model.dailyrjstatus;
 import com.personal.covid_19.model.india_Data;
 import  com.personal.covid_19.utils.*;
 import com.ramijemli.percentagechartview.PercentageChartView;
@@ -46,8 +48,9 @@ import com.ramijemli.percentagechartview.PercentageChartView;
  * A simple {@link Fragment} subclass.
  */
 public class homeFragment extends Fragment {
-    AnimatedLineGraphView affectedGraphView,activegraphview,graphfcon,graphscon,graphtcon;
-    TextView affected,active,fconame,factive,sconame,sactive,tconame,tactive;
+    AnimatedLineGraphView affectedGraphView,activegraphview,graphfcon,graphscon,graphtcon,deadgraph,recovgraph;
+    TextView affected,active,fconame,factive,sconame,sactive,tconame,tactive,recovered,dead;
+    Float affected1,recovered1,dead1,active1;
     PercentageChartView percentageChartView;
 //    JSONObject jsonValuecases,jsonValuedeath
 //            ,jsonValuerecover= null;
@@ -91,8 +94,10 @@ public class homeFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         ViewGroup root=(ViewGroup)inflater.inflate(R.layout.fragment_home, container, false);
-        indian=root.findViewById(R.id.ind);
-
+        deadgraph=root.findViewById(R.id.deadrgraph);
+        recovgraph=root.findViewById(R.id.recovergraph);
+        dead=root.findViewById(R.id.dead);
+        recovered=root.findViewById(R.id.recover);
         top3tview=root.findViewById(R.id.top3);
         affectedGraphView=root.findViewById(R.id.affectedgraph);
         activegraphview=root.findViewById(R.id.activegraph);
@@ -107,8 +112,7 @@ public class homeFragment extends Fragment {
         sactive=root.findViewById(R.id.textsconcases);
         tconame=root.findViewById(R.id.texttcon);
         tactive=root.findViewById(R.id.texttconcases);
-        percentageChartView=root.findViewById(R.id.percentage);
-        readmore=root.findViewById(R.id.readmore);
+
 //        SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences("mode", MODE_PRIVATE);
 //        SharedPreferences.Editor editor = pref.edit();
 //
@@ -130,13 +134,7 @@ public class homeFragment extends Fragment {
 //                ft.detach(homeFragment.this).attach(homeFragment.this).commit();
 //            }
 //        });
-        readmore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.worldometers.info/coronavirus/coronavirus-symptoms/"));
-                startActivity(browserIntent);
-            }
-        });
+
 
 //    if(!pref.getBoolean("india",false)) {
 //        top3tview.setText("Top 3 Country");
@@ -145,6 +143,7 @@ public class homeFragment extends Fragment {
 //    }
 
 
+        indiancases();
 
 
 
@@ -155,10 +154,91 @@ public class homeFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        indiancases();
+
+    }
+    private void rajasthandat(){
+        utils apiinterfaceindia=RetrofitClient.getindiaretrofit(getContext()).create(utils.class);
+        apiinterfaceindia.rajasthandata().subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<dailyrjstatus>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(dailyrjstatus dailyrjstatus) {
+                        Log.d(TAG, "onNext: "+dailyrjstatus.getStates_daily().get(5).getStatus().toString());
+                        makerjgraphs(dailyrjstatus);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
     }
 
+    private void makerjgraphs(dailyrjstatus dailyrjstatus) {
 
+        int size=dailyrjstatus.getStates_daily().size();
+        Log.d(TAG, "makerjgraphs: "+size);
+
+
+        float afectedcasep[]=  new float[]{affected1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-6).getRj()),
+                affected1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-9).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-6).getRj()),
+                affected1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-12).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-9).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-6).getRj()),
+                affected1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-15).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-12).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-9).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-6).getRj()),
+                affected1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-18).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-15).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-12).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-9).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-6).getRj()),
+                affected1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-21).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-18).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-15).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-12).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-9).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-6).getRj())
+
+        };
+
+
+        affectedGraphView.setData(afectedcasep);
+        float deceased[]=  new float[]{dead1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj()),
+                dead1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-7).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj()),
+                dead1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-10).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-7).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj()),
+                dead1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-13).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-10).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-7).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj()),
+                dead1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-16).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-13).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-10).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-7).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj()),
+                dead1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-19).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-16).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-13).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-10).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-7).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj())
+
+        };
+
+
+        deadgraph.setData(deceased);
+        float recov[]=  new float[]{recovered1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj()),
+                recovered1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj()),
+                recovered1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-11).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj()),
+                recovered1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-14).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-11).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj()),
+                recovered1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-17).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-14).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-11).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj()),
+                recovered1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-20).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-17).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-14).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-11).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj())
+
+        };
+      recovgraph.setData(null);// for example
+       recovgraph.setData(recov);
+        float active[]=  new float[]{active1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-6).getRj()),
+                active1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-7).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj()),
+                active1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-11).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-11).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-10).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-7).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj()),
+
+                active1-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-14).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-11).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-14).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-11).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-8).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-5).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-13).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-10).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-7).getRj())-Float.parseFloat(dailyrjstatus.getStates_daily().get(size-4).getRj()),
+
+
+
+
+        };
+
+        activegraphview.setData(active);
+
+
+
+    }
 
     private void indiancases() {
         utils apiinterfaceindia=RetrofitClient.getindiaretrofit(getContext()).create(utils.class);
@@ -174,20 +254,17 @@ public class homeFragment extends Fragment {
                     @Override
                     public void onNext(india_Data india_data) {
                         DecimalFormat precision = new DecimalFormat("0.0");
-                        affected.setText(Float.toString(Float.parseFloat(india_data.getStatewise().get(0).getConfirmed())/1000)+"k");
-                        active.setText(Float.toString(Float.parseFloat(india_data.getStatewise().get(0).getActive())/1000)+"k");
-                        percentageChartView.setProgress((Float.parseFloat(india_data.getStatewise().get(0).getActive())/Float.parseFloat(india_data.getStatewise().get(0).getConfirmed()))*100,true);
-                        makegraph(india_data);
-                        Log.d(TAG, "onNext: "+india_data.getStatewise().get(0).getActive());
-                        Log.d("HIEE", "onNext: "+india_data.getCases_time_series().toString());
-                        for(int days=1;days<india_data.getStatewise().size();days++)
-                        {
-                            statecases.put(Integer.valueOf(india_data.getStatewise().get(days).getActive()),india_data.getStatewise().get(days).getState());
-                        }
-                        statecases.entrySet()
-                                .stream()
-                                .sorted(HashMap.Entry.comparingByKey())
-                                .forEachOrdered(x -> sortedCASES.put(x.getKey(), x.getValue()));
+
+                        affected.setText(india_data.getStatewise().get(5).getConfirmed());
+                        active.setText(india_data.getStatewise().get(5).getActive());
+                        dead.setText(india_data.getStatewise().get(5).getDeaths());
+                       recovered.setText(india_data.getStatewise().get(5).getRecovered());
+                       affected1=Float.parseFloat(india_data.getStatewise().get(5).getConfirmed());
+                       active1=Float.parseFloat(india_data.getStatewise().get(5).getActive());
+                       dead1=Float.parseFloat(india_data.getStatewise().get(5).getDeaths());
+                       recovered1= Float.parseFloat(india_data.getStatewise().get(5).getRecovered());
+
+
                     }
 
                     @Override
@@ -199,23 +276,7 @@ public class homeFragment extends Fragment {
                     public void onComplete() {
                         List<Integer> l=new ArrayList<>(sortedCASES.keySet());
                         Log.d(TAG, "onComplete: "+l.size());
-                        top3states.add(sortedCASES.get(l.get(l.size()-1)));
-                        top3states.add(sortedCASES.get(l.get(l.size()-2)));
-                        top3states.add(sortedCASES.get(l.get(l.size()-3)));
-                        top3statecases.add(l.get(l.size()-1));
-                        top3statecases.add(l.get(l.size()-2));
-                        top3statecases.add(l.get(l.size()-3));
-                        fconame.setText(top3states.get(0));
-                        factive.setText(String.valueOf(top3statecases.get(0)));
-                        sconame.setText(top3states.get(1));
-                        sactive.setText(String.valueOf(top3statecases.get(1)));
-                        tconame.setText(top3states.get(2));
-                        tactive.setText(String.valueOf(top3statecases.get(2)));
-
-                        Log.d(TAG, "onComplete: "+top3states.get(0));
-                        Log.d(TAG, "onComplete: "+top3statecases.get(0));
-
-
+                        rajasthandat();
 
 
                     }
@@ -224,16 +285,9 @@ public class homeFragment extends Fragment {
 
     private void makegraph(india_Data india_data) {
         int size=india_data.getCases_time_series().size();
-        float casedata[] = new float[]{ Float.valueOf(india_data.getCases_time_series().get(size-1).getTotalconfirmed()),
-                Float.valueOf(india_data.getCases_time_series().get(size-2).getTotalconfirmed()),
-                Float.valueOf(india_data.getCases_time_series().get(size-3).getTotalconfirmed()),
-                Float.valueOf(india_data.getCases_time_series().get(size-4).getTotalconfirmed()),
-                Float.valueOf(india_data.getCases_time_series().get(size-5).getTotalconfirmed()),
-                Float.valueOf(india_data.getCases_time_series().get(size-6).getTotalconfirmed()),
-                Float.valueOf(india_data.getCases_time_series().get(size-7).getTotalconfirmed()),
-                Float.valueOf(india_data.getCases_time_series().get(size-8).getTotalconfirmed()),
-                Float.valueOf(india_data.getCases_time_series().get(size-9).getTotalconfirmed())
-                ,Float.valueOf(india_data.getCases_time_series().get(size-10).getTotalconfirmed())};
+        float[] casedata= new float[10];
+        casedata[0]=100;
+
         affectedGraphView.setData(null);// for example
         affectedGraphView.setData(casedata);
         float activecasep[]= new float[]{
@@ -249,251 +303,11 @@ public class homeFragment extends Fragment {
                 Float.valueOf(india_data.getCases_time_series().get(size-10).getTotalconfirmed())-Float.valueOf(india_data.getCases_time_series().get(size-10).getTotaldeceased())-Float.valueOf(india_data.getCases_time_series().get(size-10).getTotalrecovered())};
         activegraphview.setData(null);
         activegraphview.setData(activecasep);
-        }
+    }
 
-//    private void globalcases() {
-//        utils apiinterface=RetrofitClient.getClient(getContext()).create(utils.class);
-//        apiinterface.allcases().subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Observer<allcases>() {
-//                    @Override
-//                    public void onSubscribe(Disposable d) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onNext(allcases allcases) {
-//                        Log.d("TAG", "onNext: "+allcases.getActive());
-//                        DecimalFormat precision = new DecimalFormat("0.0");
-//                        affected.setText(Float.toString(Float.parseFloat(precision.format(allcases.getCases()/1000)))+"k");
-//                        active.setText(Float.toString(Float.parseFloat(precision.format(allcases.getActive()/1000)))+"k");
-//
-//                        percentageChartView.setProgress((allcases.getActive()/allcases.getCases())*100,true);
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Log.d("TAG", "onError: "+e.getLocalizedMessage());
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//
-//                    }
-//                });
-//        new fetchdailydata().execute();
-//        apiinterface.allcountrydata().subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Observer<List<countrydata>>() {
-//                    @Override
-//                    public void onSubscribe(Disposable d) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onNext(List<countrydata> countrydata) {
-//                        Log.d(TAG, "onNext: "+countrydata.get(0).getCountry());
-//                        fconame.setText(countrydata.get(1).getCountry());
-//                        factive.setText(Float.toString(countrydata.get(1).getCases()));
-//                        sconame.setText(countrydata.get(2).getCountry());
-//                        sactive.setText(Float.toString(countrydata.get(2).getCases()));
-//                        tconame.setText(countrydata.get(3).getCountry());
-//                        tactive.setText(Float.toString(countrydata.get(3).getCases()));
-//                        topthreecon.add(countrydata.get(1).getCountry());
-//                        topthreecon.add(countrydata.get(2).getCountry());
-//                        topthreecon.add(countrydata.get(3).getCountry());
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Log.d(TAG, "onError: "+e.getLocalizedMessage());
-//                    }
-//
-//                    @Override
-//                    public void onComplete() {
-//                        new topcondailydata().execute();
-//
-//                    }
-//                })  ;
-//    }
 
-//    private class fetchdailydata extends AsyncTask<String,Void,String>
-//    {
-//
-//        @Override
-//        protected String doInBackground(String... strings) {
-//            OkHttpClient client = new OkHttpClient();
-//            Request request = new Request.Builder().url("https://corona.lmao.ninja/v2/historical/all").build();
-//            try {
-//
-//                Response response = client.newCall(request).execute();
-////                Log.d("CheckR", "doInBackground: "+response.body().string());
-//                JSONObject array1 = new JSONObject(response.body().string());
-//
-//                if (array1.length() > 0) {
-//                    jsonValuecases = array1.getJSONObject("cases");
-//                    jsonValuedeath = array1.getJSONObject("deaths");
-//                    jsonValuerecover=array1.getJSONObject("recovered");
-//                    Log.d(TAG, "doInBackground: "+jsonValuecases.toString());
-//
-//
-//                }
-//
-//
-//            } catch (IOException | JSONException e) {
-//                e.printStackTrace();
-//            }
-//
-//
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String s) {
-//            super.onPostExecute(s);
-//            dailydatatolist(jsonValuecases,casesdata);
-//            dailydatatolist(jsonValuedeath,deathdata);
-//            dailydatatolist(jsonValuerecover,recoverdata);
-//            int size=casesdata.size();
-//            float casedata[] = new float[]{ Float.valueOf(casesdata.get(size-1)),Float.valueOf(casesdata.get(size-2)),Float.valueOf(casesdata.get(size-3)),Float.valueOf(casesdata.get(size-4)),
-//                    Float.valueOf(casesdata.get(size-5)),Float.valueOf(casesdata.get(size-6)),Float.valueOf(casesdata.get(size-7)),Float.valueOf(casesdata.get(size-8)),Float.valueOf(casesdata.get(size-9))
-//                    ,Float.valueOf(casesdata.get(size-10))};
-//
-//
-//            affectedGraphView.setData(null);// for example
-//            affectedGraphView.setData(casedata);
-//            float activecasep[]=new float[]{
-//                    Float.valueOf(casesdata.get(size-1))-Float.valueOf(deathdata.get(size-1))-Float.valueOf(recoverdata.get(size-1)),
-//                    Float.valueOf(casesdata.get(size-2))-Float.valueOf(deathdata.get(size-2))-Float.valueOf(recoverdata.get(size-2)),
-//                    Float.valueOf(casesdata.get(size-3))-Float.valueOf(deathdata.get(size-3))-Float.valueOf(recoverdata.get(size-3)),
-//                    Float.valueOf(casesdata.get(size-4))-Float.valueOf(deathdata.get(size-4))-Float.valueOf(recoverdata.get(size-4)),
-//                    Float.valueOf(casesdata.get(size-5))-Float.valueOf(recoverdata.get(size-5))-Float.valueOf(deathdata.get(size-5)),
-//                    Float.valueOf(casesdata.get(size-6))-Float.valueOf(deathdata.get(size-6))-Float.valueOf(recoverdata.get(size-6)),
-//                    Float.valueOf(casesdata.get(size-7))-Float.valueOf(deathdata.get(size-7))-Float.valueOf(recoverdata.get(size-7)),
-//                    Float.valueOf(casesdata.get(size-8))-Float.valueOf(deathdata.get(size-8))-Float.valueOf(recoverdata.get(size-8)),
-//                    Float.valueOf(casesdata.get(size-9))-Float.valueOf(deathdata.get(size-9))-Float.valueOf(recoverdata.get(size-9)),
-//                    Float.valueOf(casesdata.get(size-10))-Float.valueOf(deathdata.get(size-10))-Float.valueOf(recoverdata.get(size-10))};
-//
-//            activegraphview.setData(null);
-//            activegraphview.setData(activecasep);
-//
-//
-//        }
-//
-//        private void dailydatatolist(JSONObject jsonObject, List<String> dailydata) {
-//            try {
-//                // Iterate your json object keys
-//                Iterator iterator = jsonObject.keys();
-//
-//                // Initiate the for loop
-//                String jsonKey=null;
-//                while (iterator.hasNext()) {
-//
-//                    // Parsing json keys
-//                    jsonKey = (String) iterator.next();
-//
-//
-//                    // Parsing json values
-//                    String jsonValue = jsonValuecases.getString(jsonKey);
-//                    dailydata.add(jsonValue);
-//
-//
-//                    // Printing the log
-//
-//
-//                }
-//
-//
-//            } catch (JSONException e) {
-//                e.printStackTrace();
-//                Log.e("OOPs!!", "Please check your json or something else bad happened!!");
-//            }
-//
-//
-//
-//        }
-//
-//
-//    }
-//    private class topcondailydata extends AsyncTask<String,Void,String>
-//    {
-//        @Override
-//        protected String doInBackground(String... strings) {
-//            OkHttpClient client = new OkHttpClient();
-//            Request request = new Request.Builder().url("https://pomber.github.io/covid19/timeseries.json").build();
-//            try {
-//
-//                Response response = client.newCall(request).execute();
-////                Log.d("CheckR", "doInBackground: "+response.body().string());
-//                JSONObject array1 = new JSONObject(response.body().string());
-//
-//                if (array1.length() > 0) {
-//                    JSONArray country1 = null;
-//                if(topthreecon.get(0).equals("USA")) {
-//                   country1 = array1.getJSONArray(topthreecon.get(0).substring(0,2));
-//                }
-//                else
-//                {
-//                    country1 = array1.getJSONArray(topthreecon.get(0));
-//                }
-//
-//                   JSONArray country2=array1.getJSONArray(topthreecon.get(1));
-//                   JSONArray country3=array1.getJSONArray(topthreecon.get(2));
-//
-//                    countrydatadaily1=objectMapper.readValue(String.valueOf(country1),objectMapper.getTypeFactory().constructCollectionType(List.class, countrydailydata.class));
-//                    countrydatadaily2=objectMapper.readValue(String.valueOf(country2),objectMapper.getTypeFactory().constructCollectionType(List.class, countrydailydata.class));
-//                    countrydatadaily3=objectMapper.readValue(String.valueOf(country3),objectMapper.getTypeFactory().constructCollectionType(List.class, countrydailydata.class));
-//
-//
-//
-//
-//                }
-//
-//
-//            } catch (IOException | JSONException e) {
-//                e.printStackTrace();
-//            }
-//
-//
-//            return null;
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String s) {
-//            super.onPostExecute(s);
-//
-//            int size=countrydatadaily1.size();
-//            float country1data[]=new float[]{countrydatadaily1.get(size-1).getConfirmed(),countrydatadaily1.get(size-2).getConfirmed(),
-//                    countrydatadaily1.get(size-3).getConfirmed(),countrydatadaily1.get(size-4).getConfirmed(),
-//                    countrydatadaily1.get(size-5).getConfirmed(),countrydatadaily1.get(size-6).getConfirmed(),
-//                    countrydatadaily1.get(size-7).getConfirmed(),countrydatadaily1.get(size-8).getConfirmed(),
-//                    countrydatadaily1.get(size-9).getConfirmed(),countrydatadaily1.get(size-10).getConfirmed()};
-//            float country2data[]=new float[]{countrydatadaily2.get(size-1).getConfirmed(),countrydatadaily2.get(size-2).getConfirmed(),
-//                    countrydatadaily2.get(size-3).getConfirmed(),countrydatadaily2.get(size-4).getConfirmed(),
-//                    countrydatadaily2.get(size-5).getConfirmed(),countrydatadaily2.get(size-6).getConfirmed(),
-//                    countrydatadaily2.get(size-7).getConfirmed(),countrydatadaily2.get(size-8).getConfirmed(),
-//                    countrydatadaily2.get(size-9).getConfirmed(),countrydatadaily2.get(size-10).getConfirmed()};
-//            float country3data[]=new float[]{countrydatadaily3.get(size-1).getConfirmed(),countrydatadaily3.get(size-2).getConfirmed(),
-//                    countrydatadaily3.get(size-3).getConfirmed(),countrydatadaily3.get(size-4).getConfirmed(),
-//                    countrydatadaily3.get(size-5).getConfirmed(),countrydatadaily3.get(size-6).getConfirmed(),
-//                    countrydatadaily3.get(size-7).getConfirmed(),countrydatadaily3.get(size-8).getConfirmed(),
-//                    countrydatadaily3.get(size-9).getConfirmed(),countrydatadaily3.get(size-10).getConfirmed()};
-//
-//            graphfcon.setData(null);
-//            graphscon.setData(null);
-//            graphtcon.setData(null);
-//
-//            graphfcon.setData(country1data);
-//
-//            graphscon.setData(country2data);
-//            graphtcon.setData(country3data);
-//
-//
-//
-//        }
-//    }
+
+
 }
 
 

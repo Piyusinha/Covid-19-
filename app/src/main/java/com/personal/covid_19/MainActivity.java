@@ -16,10 +16,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         if(savedInstanceState == null) {
             getSupportFragmentManager().
-                    beginTransaction().replace(R.id.framecontent,new homeFragment()).commit();
+                    beginTransaction().replace(R.id.framecontent,new homemain()).commit();
         }
-        getSupportFragmentManager().
-                beginTransaction().replace(R.id.framecontent,new homemain()).commit();
+
         bottomBar=findViewById(R.id.bottomBar);
 
         bottomBar.setOnItemSelectedListener(new OnItemSelectedListener() {
