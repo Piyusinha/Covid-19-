@@ -5,10 +5,16 @@ public class states {
     private String rj;
 
     private String status;
+    private  String date;
 
+    public String getDate() {
+        return date;
+    }
 
-
-    // Getter Methods
+    public void setDate(String date) {
+        this.date = date;
+    }
+// Getter Methods
 
 
 

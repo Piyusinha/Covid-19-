@@ -2,6 +2,7 @@ package com.personal.covid_19;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import java.util.LinkedHashMap;
@@ -34,8 +36,18 @@ import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import ir.farshid_roohi.linegraph.ChartEntity;
 
 
+import com.github.mikephil.charting.charts.BarChart;
+
+
+import com.github.mikephil.charting.components.Legend;
+import ir.farshid_roohi.linegraph.LineChart;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.personal.covid_19.model.dailyrjstatus;
 import com.personal.covid_19.model.india_Data;
 import  com.personal.covid_19.utils.*;
@@ -49,12 +61,15 @@ import com.ramijemli.percentagechartview.PercentageChartView;
  */
 public class homeFragment extends Fragment {
     AnimatedLineGraphView affectedGraphView,activegraphview,graphfcon,graphscon,graphtcon,deadgraph,recovgraph;
+    LineChart chart;
     TextView affected,active,fconame,factive,sconame,sactive,tconame,tactive,recovered,dead;
+
     Float affected1,recovered1,dead1,active1;
     PercentageChartView percentageChartView;
 //    JSONObject jsonValuecases,jsonValuedeath
 //            ,jsonValuerecover= null;
     TextView readmore;
+
 
 //    List<String> casesdata = new ArrayList<>();
 //    List<String> deathdata = new ArrayList<>();
@@ -73,6 +88,10 @@ public class homeFragment extends Fragment {
     ImageView indian;
 //    Boolean indianbutton=false;
     TextView top3tview;
+
+    boolean checkin=false;
+    ArrayList<BarEntry> data;
+    Legend legend;
 
 
 
@@ -93,25 +112,39 @@ public class homeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        ViewGroup root=(ViewGroup)inflater.inflate(R.layout.fragment_home, container, false);
+     ViewGroup   root=(ViewGroup)inflater.inflate(R.layout.fragment_home, container, false);
         deadgraph=root.findViewById(R.id.deadrgraph);
         recovgraph=root.findViewById(R.id.recovergraph);
         dead=root.findViewById(R.id.dead);
         recovered=root.findViewById(R.id.recover);
-        top3tview=root.findViewById(R.id.top3);
+
         affectedGraphView=root.findViewById(R.id.affectedgraph);
         activegraphview=root.findViewById(R.id.activegraph);
-        graphfcon=root.findViewById(R.id.graphfirstcountry);
-        graphscon=root.findViewById(R.id.graphsecondcountry);
-        graphtcon=root.findViewById(R.id.graphthirdcountry);
+
         affected=root.findViewById(R.id.textaffected);
         active=root.findViewById(R.id.textactive);
-        fconame=root.findViewById(R.id.textfcon);
-        factive=root.findViewById(R.id.textfconcases);
-        sconame=root.findViewById(R.id.textscon);
-        sactive=root.findViewById(R.id.textsconcases);
-        tconame=root.findViewById(R.id.texttcon);
-        tactive=root.findViewById(R.id.texttconcases);
+        chart=root.findViewById(R.id.lineChart);
+        float graph1[]=  new float[]{0, 0, 0, 0, 0, 0, 0};
+        String array[]=new String[]{"S", "S", "S", "S", "S", "S", "S"};
+
+        ChartEntity first= new ChartEntity(Color.YELLOW,graph1);
+        ArrayList<ChartEntity> list=new ArrayList<>();
+        list.add(first);
+        chart.setLegend(Arrays.asList(array));
+        chart.setList(list);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //        SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences("mode", MODE_PRIVATE);
 //        SharedPreferences.Editor editor = pref.edit();
@@ -235,6 +268,42 @@ public class homeFragment extends Fragment {
         };
 
         activegraphview.setData(active);
+
+
+
+//   data.add(new BarEntry(Float.parseFloat(dailyrjstatus.getStates_daily().get(size-3).getDate()),Float.parseFloat(dailyrjstatus.getStates_daily().get(size-3).getRj())));
+//        data.add(new BarEntry(Float.parseFloat(dailyrjstatus.getStates_daily().get(size-6).getDate()),));
+//        data.add(new BarEntry(Float.parseFloat(dailyrjstatus.getStates_daily().get(size-9).getDate()),Float.parseFloat(dailyrjstatus.getStates_daily().get(size-9).getRj())));
+//        data.add(new BarEntry(Float.parseFloat(dailyrjstatus.getStates_daily().get(size-12).getDate()),Float.parseFloat(dailyrjstatus.getStates_daily().get(size-12).getRj())));
+//        data.add(new BarEntry(Float.parseFloat(dailyrjstatus.getStates_daily().get(size-15).getDate()),Float.parseFloat(dailyrjstatus.getStates_daily().get(size-15).getRj())));
+//        data.add(new BarEntry(Float.parseFloat(dailyrjstatus.getStates_daily().get(size-18).getDate()),Float.parseFloat(dailyrjstatus.getStates_daily().get(size-18).getRj())));
+//        data.add(new BarEntry(Float.parseFloat(dailyrjstatus.getStates_daily().get(size-21).getDate()),Float.parseFloat(dailyrjstatus.getStates_daily().get(size-21).getRj())));
+//        BarDataSet barDataSet=new BarDataSet(data,"Cases");
+//        BarData barData=new BarData();
+//        barData.addDataSet(barDataSet);
+//        chart.setData(barData);
+//        chart.invalidate();
+        float graph1[]=  new float[]{Float.parseFloat(dailyrjstatus.getStates_daily().get(size-3).getRj()),
+                Float.parseFloat(dailyrjstatus.getStates_daily().get(size-6).getRj()),
+                Float.parseFloat(dailyrjstatus.getStates_daily().get(size-9).getRj()),
+                Float.parseFloat(dailyrjstatus.getStates_daily().get(size-12).getRj()),
+                Float.parseFloat(dailyrjstatus.getStates_daily().get(size-15).getRj()),
+                Float.parseFloat(dailyrjstatus.getStates_daily().get(size-18).getRj()),
+                Float.parseFloat(dailyrjstatus.getStates_daily().get(size-21).getRj())
+               };
+        String array[]=new String[]{dailyrjstatus.getStates_daily().get(size-3).getDate(),
+                dailyrjstatus.getStates_daily().get(size-6).getDate(),
+                dailyrjstatus.getStates_daily().get(size-9).getDate(),
+                dailyrjstatus.getStates_daily().get(size-12).getDate(),
+                dailyrjstatus.getStates_daily().get(size-15).getDate(),
+                dailyrjstatus.getStates_daily().get(size-18).getDate(),
+                dailyrjstatus.getStates_daily().get(size-21).getDate()};
+        ChartEntity first= new ChartEntity(Color.WHITE,graph1);
+        ArrayList<ChartEntity> list=new ArrayList<>();
+        list.add(first);
+        chart.setLegend(Arrays.asList(array));
+        chart.setList(list);
+
 
 
 

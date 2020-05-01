@@ -104,6 +104,7 @@
                         android:layout_weight="1">
 
                         <Button
+                            android:id="@+id/callhelpline"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@drawable/buttonback"
@@ -126,6 +127,7 @@
                         android:layout_weight="1">
 
                         <Button
+                            android:id="@+id/sendmessage"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@drawable/buttonback2"
@@ -299,6 +301,7 @@
 
                     </LinearLayout>
                     <LinearLayout
+                        android:id="@+id/checkup"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1.2"
