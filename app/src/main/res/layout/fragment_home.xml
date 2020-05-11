@@ -25,6 +25,7 @@
         android:layout_height="wrap_content">
 
         <ImageView
+            android:id="@+id/checknearby"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
@@ -44,9 +45,10 @@
 
     </TextView>
     <TextView
+        android:id="@+id/statecurrent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Rajasthan Cases Overview"
+
         android:alpha=".6"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -109,6 +111,8 @@
                                           android:textColor="@color/dangertext"
                                           android:fontFamily="@font/montserrat"
                                               ></TextView>
+
+
                               </LinearLayout>
                                <LinearLayout
                                    android:layout_width="0dp"
@@ -162,6 +166,7 @@
                                            android:fontFamily="@font/montserrat"
                                            android:id="@+id/textactive"
                                            ></TextView>
+
                                </LinearLayout>
                                <LinearLayout
                                    android:layout_width="0dp"
@@ -226,6 +231,7 @@
                            android:fontFamily="@font/montserrat"
 
                            ></TextView>
+
                    </LinearLayout>
                    <LinearLayout
                        android:layout_width="0dp"
@@ -280,6 +286,7 @@
                            android:fontFamily="@font/montserrat"
 
                            ></TextView>
+
                    </LinearLayout>
                    <LinearLayout
                        android:layout_width="0dp"

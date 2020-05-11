@@ -20,6 +20,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daprlabs.cardstack.SwipeDeck;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.shreyaspatil.MaterialDialog.BottomSheetMaterialDialog;
 import com.shreyaspatil.MaterialDialog.interfaces.DialogInterface;
 import com.yuyakaido.android.cardstackview.CardStackView;
@@ -36,6 +41,7 @@ public class selfcheckup extends AppCompatActivity {
     private int i;
         SwipeDeck flingContainer;
 Button yes,no;
+ImageView backbtn;
     public static cardAdapter myAppAdapter;
     public static ViewHolder viewHolder;
     private ArrayList<card> array;
@@ -44,20 +50,41 @@ Button yes,no;
     int position=1;
     int score=0;
     ArrayList<Integer> answers=new ArrayList<Integer>();
+    FirebaseUser currentUser;
+    FirebaseAuth mAuth;
+    FirebaseFirestore firestore;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_selfcheckup);
         flingContainer= findViewById(R.id.frame);
+        mAuth= FirebaseAuth.getInstance();
+        currentUser=mAuth.getCurrentUser();
+
+
+        firestore=FirebaseFirestore.getInstance();
         progressBar=findViewById(R.id.progressbarques);
         question=findViewById(R.id.questionno);
         yes=findViewById(R.id.yesbtn);
         no=findViewById(R.id.nobtn);
         array = new ArrayList<>();
+        backbtn=findViewById(R.id.backbtn);
+        backbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i=new Intent(selfcheckup.this,MainActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(i);
 
-        array.add(new card("Have you been within 6 feet of a person with a lab-confirmed case of COVID-19 for at least 5 minutes, or had direct contact with their mucus or saliva, in the past 14 days?"));
+            }
+        });
+
         flingContainer.setHardwareAccelerationEnabled(true);
+        array.add(new card("Have you been within 6 feet of a person with a lab-confirmed case of COVID-19 for at least 5 minutes, or had direct contact with their mucus or saliva, in the past 14 days?"));
+
 
         array.add(new card("In the last 48 hours, have you had any of the following :\nFever,Cough,Trouble breathing,Muscle aches,Sore throat,Diarrhea."));
         array.add(new card("Are you experiencing fatigue?"));
@@ -153,6 +180,8 @@ Button yes,no;
     private void checkanswer() {
         Log.d("TAG", "onCreate: "+"HIEE");
         if (answers.get(0)==1&&answers.get(1)==1) {
+
+                settest("positive");
             BottomSheetMaterialDialog mBottomSheetDialog = new BottomSheetMaterialDialog.Builder(selfcheckup.this)
                     .setTitle("ALERT!")
                     .setMessage("Your chances of getting infected are high #StayHome#StaySafe")
@@ -160,7 +189,7 @@ Button yes,no;
                     .setPositiveButton("Retest", new BottomSheetMaterialDialog.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int which) {
-                            Toast.makeText(getApplicationContext(), "Deleted!", Toast.LENGTH_SHORT).show();
+
                             finish();
                             overridePendingTransition(0,0);
                             startActivity(getIntent());
@@ -173,7 +202,7 @@ Button yes,no;
                         @Override
                         public void onClick(DialogInterface dialogInterface, int which) {
                             Intent i=new Intent(selfcheckup.this,MainActivity.class);
-
+                            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(i);
                         }
                     })
@@ -183,6 +212,7 @@ Button yes,no;
             // Show Dialog
             mBottomSheetDialog.show();
         } else if (answers.get(0)==1 && answers.get(1)==0 ) {
+            settest("positive");
             BottomSheetMaterialDialog mBottomSheetDialog = new BottomSheetMaterialDialog.Builder(selfcheckup.this)
                     .setTitle("Ooops!")
                     .setMessage("You might get infected\n#StayHome#StaySafe")
@@ -204,7 +234,7 @@ Button yes,no;
                         public void onClick(DialogInterface dialogInterface, int which) {
                             Intent i=new Intent(selfcheckup.this,MainActivity.class);
 
-
+                            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(i);
                         }
                     })
@@ -214,6 +244,7 @@ Button yes,no;
             // Show Dialog
             mBottomSheetDialog.show();
         } else if (score > 2) {
+            settest("positive");
             BottomSheetMaterialDialog mBottomSheetDialog = new BottomSheetMaterialDialog.Builder(selfcheckup.this)
                     .setTitle("ALERT!")
                     .setMessage("Your chances of getting infected are high #StayHome#StaySafe")
@@ -234,7 +265,7 @@ Button yes,no;
                         @Override
                         public void onClick(DialogInterface dialogInterface, int which) {
                             Intent i=new Intent(selfcheckup.this,MainActivity.class);
-
+                            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
                             startActivity(i);
                         }
@@ -246,6 +277,7 @@ Button yes,no;
             mBottomSheetDialog.show();
 
         } else {
+            settest("negative");
             BottomSheetMaterialDialog mBottomSheetDialog = new BottomSheetMaterialDialog.Builder(selfcheckup.this)
                     .setTitle("Kudos!")
                     .setMessage("Your chances of getting infected are low #StayHome#StaySafe")
@@ -266,7 +298,7 @@ Button yes,no;
                         @Override
                         public void onClick(DialogInterface dialogInterface, int which) {
                             Intent i=new Intent(selfcheckup.this,MainActivity.class);
-
+                            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK |Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(i);
                         }
                     })
@@ -275,6 +307,28 @@ Button yes,no;
 
             // Show Dialog
             mBottomSheetDialog.show();
+        }
+    }
+
+    private void settest(String result) {
+        if(currentUser!=null)
+        {
+
+            String userid=currentUser.getUid();
+
+
+            DocumentReference reference=firestore.collection("userid").document(userid);
+            Map<String,Object> user1= new HashMap<>();
+
+            user1.put("test",result);
+
+            reference.update(user1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+
+                }
+            });
+
         }
     }
 
@@ -342,6 +396,8 @@ Button yes,no;
     static void makeToast(Context ctx, String s) {
         Toast.makeText(ctx, s, Toast.LENGTH_SHORT).show();
     }
+
+
 
 }
 
